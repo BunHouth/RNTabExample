@@ -1,32 +1,71 @@
-import React, {useState, useMemo, useCallback} from "react";
-import {Dimensions, StyleSheet, SafeAreaView, Text, View} from "react-native";
+import React, {useEffect, useState, useCallback, useRef} from "react";
+import {
+  Animated,
+  Dimensions,
+  StyleSheet,
+  SafeAreaView,
+  Text,
+  View,
+  Easing
+} from "react-native";
 import {TabView, SceneMap, TabBar} from "react-native-tab-view";
 import _ from "lodash";
+
 const AuditRecord = ({title}) => (
   <View style={styles.tabContainer}>
     <Text>{title}</Text>
   </View>
 );
 
+const TabIndicator = ({width, tabWidth, index}) => {
+  const marginLeftRef = useRef(new Animated.Value(index ? tabWidth : 0))
+    .current;
+  useEffect(() => {
+    Animated.timing(marginLeftRef, {
+      toValue: tabWidth,
+      duration: 400
+    }).start();
+  }, [tabWidth]);
+
+  return (
+    <Animated.View
+      style={{
+        justifyContent: "flex-end",
+        alignItems: "center",
+        flex: 1,
+        width: width,
+        marginLeft: marginLeftRef
+      }}
+    >
+      <View
+        style={{
+          backgroundColor: "red",
+          height: 2,
+          width: 20
+        }}
+      />
+    </Animated.View>
+  );
+};
+
 const MyProfile = ({title}) => (
   <View style={styles.tabContainer}>
     <Text>{title}</Text>
-    <Text>你好，世界。</Text>
+    <Text>ពត៌មានរបស់ខ្ញុំ</Text>
   </View>
 );
 
 export const Home = () => {
   const [index, setIndex] = useState(0);
   const routes = [
-    {key: "auditRecord", title: "审核记录 "},
-    {key: "performance", title: "我的业绩 "},
-    {key: "calendar", title: "业务日历 "},
-    {key: "information", title: "我的信息"}
+    {key: "feed", title: "មតិព័ត៌មាន"},
+    {key: "search", title: "ស្វែងរក "},
+    {key: "account", title: "គណនី "}
   ];
 
   const renderScene = ({route}) => {
     switch (route.key) {
-      case "information":
+      case "account":
         return <MyProfile title={route.title} />;
       default:
         return <AuditRecord title={route.title} />;
@@ -36,24 +75,13 @@ export const Home = () => {
   const renderIndicator = useCallback(
     ({getTabWidth}) => {
       const tabWidth = _.sum([...Array(index).keys()].map(i => getTabWidth(i)));
+
       return (
-        <View
-          style={{
-            justifyContent: "flex-end",
-            alignItems: "center",
-            flex: 1,
-            width: getTabWidth(index),
-            marginLeft: tabWidth
-          }}
-        >
-          <View
-            style={{
-              backgroundColor: "red",
-              height: 2,
-              width: 20
-            }}
-          />
-        </View>
+        <TabIndicator
+          width={getTabWidth(index)}
+          tabWidth={tabWidth}
+          index={index}
+        />
       );
     },
     [index]
