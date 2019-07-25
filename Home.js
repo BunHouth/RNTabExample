@@ -9,6 +9,7 @@ import {
   Easing
 } from "react-native";
 import {TabView, SceneMap, TabBar} from "react-native-tab-view";
+import LinearGradient from "react-native-linear-gradient";
 import _ from "lodash";
 
 const AuditRecord = ({title}) => (
@@ -37,12 +38,11 @@ const TabIndicator = ({width, tabWidth, index}) => {
         marginLeft: marginLeftRef
       }}
     >
-      <View
-        style={{
-          backgroundColor: "red",
-          height: 2,
-          width: 20
-        }}
+      <LinearGradient
+        start={{x: 0, y: 0}}
+        end={{x: 1, y: 0}}
+        colors={["#50b0ea", "#80a2ed", "#a797f2", "#e981f4"]}
+        style={{height: 2, width: "100%"}}
       />
     </Animated.View>
   );
@@ -126,8 +126,8 @@ const styles = StyleSheet.create({
   indicator: {
     backgroundColor: "#ccc"
   },
-  tabBarContainer: {backgroundColor: "#fff"},
+  tabBarContainer: {backgroundColor: "#33313f"},
   labelStyle: {
-    color: "#032"
+    color: "#fff"
   }
 });
