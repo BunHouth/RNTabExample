@@ -1,14 +1,7 @@
-import React, {useEffect, useState, useCallback, useRef} from "react";
-import {
-  Animated,
-  Dimensions,
-  StyleSheet,
-  SafeAreaView,
-  Text,
-  View,
-  Easing
-} from "react-native";
+import React, {useEffect, useState, useCallback} from "react";
+import {Dimensions, StyleSheet, SafeAreaView, Text, View} from "react-native";
 import {TabView, SceneMap, TabBar} from "react-native-tab-view";
+import Animated from "react-native-reanimated";
 import _ from "lodash";
 
 const AuditRecord = ({title}) => (
@@ -16,37 +9,6 @@ const AuditRecord = ({title}) => (
     <Text>{title}</Text>
   </View>
 );
-
-const TabIndicator = ({width, tabWidth, index}) => {
-  const marginLeftRef = useRef(new Animated.Value(index ? tabWidth : 0))
-    .current;
-  useEffect(() => {
-    Animated.timing(marginLeftRef, {
-      toValue: tabWidth,
-      duration: 400
-    }).start();
-  }, [tabWidth]);
-
-  return (
-    <Animated.View
-      style={{
-        justifyContent: "flex-end",
-        alignItems: "center",
-        flex: 1,
-        width: width,
-        marginLeft: marginLeftRef
-      }}
-    >
-      <View
-        style={{
-          backgroundColor: "red",
-          height: 2,
-          width: 20
-        }}
-      />
-    </Animated.View>
-  );
-};
 
 const MyProfile = ({title}) => (
   <View style={styles.tabContainer}>
@@ -73,15 +35,32 @@ export const Home = () => {
   };
 
   const renderIndicator = useCallback(
-    ({getTabWidth}) => {
-      const tabWidth = _.sum([...Array(index).keys()].map(i => getTabWidth(i)));
+    ({position, getTabWidth, navigationState}) => {
+      const inputRange = [0, 1];
+      const translateX = Animated.interpolate(position, {
+        inputRange: inputRange,
+        outputRange: inputRange.map(x => {
+          const i = Math.round(x);
+          return i * getTabWidth(i) * 1;
+        })
+      });
 
       return (
-        <TabIndicator
-          width={getTabWidth(index)}
-          tabWidth={tabWidth}
-          index={index}
-        />
+        <Animated.View
+          style={[
+            {
+              flex: 1,
+              alignItems: "center",
+              justifyContent: "flex-end"
+            },
+            {
+              width: getTabWidth(index),
+              transform: [{translateX}]
+            }
+          ]}
+        >
+          <View style={styles.indicator} />
+        </Animated.View>
       );
     },
     [index]
@@ -123,11 +102,13 @@ const styles = StyleSheet.create({
     alignItems: "center"
   },
   tabBar: {},
-  indicator: {
-    backgroundColor: "#ccc"
-  },
-  tabBarContainer: {backgroundColor: "#fff"},
+  tabBarContainer: {backgroundColor: "#33313f"},
   labelStyle: {
-    color: "#032"
+    color: "#fff"
+  },
+  indicator: {
+    width: 20,
+    height: 2,
+    backgroundColor: "#eee"
   }
 });
